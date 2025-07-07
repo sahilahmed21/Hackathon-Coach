@@ -1,18 +1,15 @@
+// src/index.ts
 import { Mastra } from "@mastra/core/mastra";
-import { PinoLogger } from "@mastra/loggers";
-import { weatherAgent } from "./agents/weather-agent/weather-agent"; // This can be deleted later
-import { weatherWorkflow } from "./agents/weather-agent/weather-workflow"; // This can be deleted later
-import { yourAgent } from "./agents/your-agent/your-agent"; // Build your agent here
+import { LibSQLStore } from "@mastra/libsql";
+
+import { CoachAgent } from "./agents/coach-agent/coach-agent";
+import { PlannerAgent } from "./agents/coach-agent/planner-agent";
+import { CodeAgent } from "./agents/coach-agent/code-agent";
+import { CiAgent } from "./agents/coach-agent/ci-agent";
+import { coachWorkflow } from "./agents/coach-agent/coach-workflow";
 
 export const mastra = new Mastra({
-	workflows: { weatherWorkflow }, // can be deleted later
-	agents: { weatherAgent, yourAgent },
-	logger: new PinoLogger({
-		name: "Mastra",
-		level: "info",
-	}),
-	server: {
-		port: 8080,
-		timeout: 10000,
-	},
+	agents: { CoachAgent, PlannerAgent, CodeAgent, CiAgent },
+	workflows: { coachWorkflow },
+	storage: new LibSQLStore({ url: "file:./memory.db" }), // ✅ Use storage adapter
 });
