@@ -1,7 +1,7 @@
 // src/mastra/agents/review-agent/review-agent.ts
 import { Agent } from "@mastra/core/agent";
-import { model } from "../../config";
-import { ciStatusTool } from "./pr-review-tool";
+import { model } from "../config";
+import { ciStatusTool } from "../tools/github/pr-review-tool";
 
 export const ReviewAgent = new Agent({
     name: "ReviewAgent",

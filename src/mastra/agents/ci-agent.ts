@@ -1,6 +1,6 @@
 import { Agent } from "@mastra/core/agent";
-import { model } from "../../config";
-import { ciTool } from "./ci-tool";
+import { model } from "../config";
+import { ciTool } from "../tools/github/ci-tool";
 import { Memory } from "@mastra/memory";
 
 export const CiAgent = new Agent({

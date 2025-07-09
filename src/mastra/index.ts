@@ -1,20 +1,29 @@
-// src/index.ts
 import { Mastra } from "@mastra/core/mastra";
+import { PinoLogger } from "@mastra/loggers";
 import { sharedMemory } from "./sharedMemory";
 
-import { CoachAgent } from "./agents/coach-agent/coach-agent";
-import { PlannerAgent } from "./agents/coach-agent/planner-agent";
-import { CodeAgent } from "./agents/coach-agent/code-agent";
-import { CiAgent } from "./agents/coach-agent/ci-agent"; // Assuming this is correct
-
-// Add this import for your ReviewAgent
-import { ReviewAgent } from "./agents/coach-agent/review-agent"; // <--- ADD THIS LINE
-
-import { coachWorkflow } from "./agents/coach-agent/coach-workflow";
+import { ProjectCoachAgent } from "./agents/ProjectCoachAgent";
+import { ReviewAgent } from "./agents/review-agent";
+import { CiAgent } from "./agents/ci-agent";
 
 export const mastra = new Mastra({
-	// Add ReviewAgent here
-	agents: { CoachAgent, PlannerAgent, CodeAgent, CiAgent, ReviewAgent }, // <--- ADD ReviewAgent HERE
-	workflows: { coachWorkflow },
+	agents: {
+		ProjectCoachAgent,
+		ReviewAgent,
+		CiAgent
+	},
+
+	workflows: {},
+
 	storage: sharedMemory.storage,
+
+	logger: new PinoLogger({
+		name: "HackathonCoach",
+		level: "info",
+	}),
+
+	server: {
+		port: 8080,
+		timeout: 15000,
+	},
 });
