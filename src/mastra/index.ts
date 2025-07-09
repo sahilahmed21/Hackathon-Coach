@@ -3,6 +3,7 @@ import { PinoLogger } from "@mastra/loggers";
 import { sharedMemory } from "./sharedMemory";
 
 import { ProjectCoachAgent } from "./agents/ProjectCoachAgent";
+import { gitStatagent } from "./agents/gitstat-agent";
 import { ReviewAgent } from "./agents/review-agent";
 import { CiAgent } from "./agents/ci-agent";
 
@@ -10,7 +11,9 @@ export const mastra = new Mastra({
 	agents: {
 		ProjectCoachAgent,
 		ReviewAgent,
-		CiAgent
+		CiAgent,
+		gitStatagent
+
 	},
 
 	workflows: {},
