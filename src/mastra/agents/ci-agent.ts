@@ -1,7 +1,14 @@
 import { Agent } from "@mastra/core/agent";
 import { model } from "../config";
-import { ciTool } from "../tools/github/ci-tool";
+import { ciTool } from "../tools/github/ci-status-tool";
 import { Memory } from "@mastra/memory";
+import { LibSQLStore } from "@mastra/libsql";
+
+const CiAgentMemory = new Memory({
+    storage: new LibSQLStore({
+        url: "file:./memory.db", // This will create the DB file in the root
+    }),
+});
 
 export const CiAgent = new Agent({
     name: "CiAgent",
@@ -21,4 +28,7 @@ Your workflow:
 `,
     model,
     tools: { ciTool },
+    memory: CiAgentMemory
 });
+
+export { CiAgentMemory }

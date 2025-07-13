@@ -29,6 +29,7 @@
     "@mastra/loggers": "^0.10.2",
     "@mastra/memory": "^0.11.1",
     "@nosana/sdk": "^0.4.8",
+    "@octokit/rest": "^22.0.0",
     "@solana/web3.js": "^1.98.2",
     "dotenv": "^16.5.0",
     "exa-js": "^1.8.19",
@@ -39,7 +40,9 @@
     "@biomejs/biome": "2.0.4",
     "@nosana/cli": "^1.0.52",
     "@types/node": "^24.0.3",
+    "@types/node-fetch": "^2.6.12",
     "mastra": "^0.10.5",
+    "node-fetch": "^2.7.0",
     "typescript": "^5.8.3"
   }
 }

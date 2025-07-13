@@ -1,6 +1,14 @@
 import { Agent } from "@mastra/core/agent";
 import { model } from "../config";
 import { prReviewTool } from "../tools/github/pr-review-tool"; // Now uses the correct tool!
+import { Memory } from "@mastra/memory";
+import { LibSQLStore } from "@mastra/libsql";
+
+const ReviewAgentMemory = new Memory({
+    storage: new LibSQLStore({
+        url: "file:./memory.db", // This will create the DB file in the root
+    }),
+});
 
 export const ReviewAgent = new Agent({
     name: "ReviewAgent",
@@ -22,4 +30,7 @@ Structure your review in markdown using this precise format:
 `,
     model,
     tools: { prReviewTool }, // Equipped with the right tool to do its job.
+    memory: ReviewAgentMemory
 });
+
+export { ReviewAgentMemory }

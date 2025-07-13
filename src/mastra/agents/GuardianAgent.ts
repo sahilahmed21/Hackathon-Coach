@@ -1,6 +1,14 @@
 import { Agent } from "@mastra/core/agent";
 import { model } from "../config";
 import { securityScanTool } from "../tools/analysis/security-scan-tool";
+import { Memory } from "@mastra/memory";
+import { LibSQLStore } from "@mastra/libsql";
+
+const GuardianAgentMemory = new Memory({
+    storage: new LibSQLStore({
+        url: "file:./memory.db", // This will create the DB file in the root
+    }),
+});
 
 export const GuardianAgent = new Agent({
     name: "GuardianAgent",
@@ -15,4 +23,7 @@ You are a proactive security engineer. Your mission is to analyze the dependenci
 `,
     model,
     tools: { securityScanTool },
+    memory: GuardianAgentMemory
 });
+
+export { GuardianAgentMemory }

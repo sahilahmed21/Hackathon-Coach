@@ -1,6 +1,14 @@
 import { Agent } from "@mastra/core/agent";
 import { model } from "../config";
 import { resourceFinderTool } from "../tools/utility/resource-finder-tool";
+import { Memory } from "@mastra/memory";
+import { LibSQLStore } from "@mastra/libsql";
+
+const HelpAgentMemory = new Memory({
+    storage: new LibSQLStore({
+        url: "file:./memory.db", // This will create the DB file in the root
+    }),
+});
 
 export const HelpAgent = new Agent({
     name: "HelpAgent",
@@ -16,4 +24,7 @@ You are an intelligent and empathetic developer support agent, the "Stuck?" Agen
 `,
     model,
     tools: { resourceFinderTool },
+    memory: HelpAgentMemory
 });
+
+export { HelpAgentMemory }

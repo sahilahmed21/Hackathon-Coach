@@ -30,7 +30,8 @@ export const createRepo = async (repoName: string, readmeContent: string, isPriv
 };
 
 /**
- * Pushes multiple files to a GitHub repository.
+ * A robust function to add files to a repository.
+ * It handles both empty repositories (creating the first commit) and existing repositories.
  */
 export const pushFilesToRepo = async (
     owner: string,
@@ -38,40 +39,70 @@ export const pushFilesToRepo = async (
     files: { path: string; content: string }[],
     commitMessage: string
 ) => {
-    const { data: { login } } = await octokit.users.getAuthenticated();
-    const { data: latestCommit } = await octokit.repos.getBranch({ owner: login, repo, branch: 'main' });
-    const latestCommitSha = latestCommit.commit.sha;
+    let latestCommitSha: string | undefined;
+
+    // Try to get the main branch to see if the repo has any commits yet.
+    try {
+        const { data: mainBranch } = await octokit.repos.getBranch({
+            owner,
+            repo,
+            branch: 'main',
+        });
+        latestCommitSha = mainBranch.commit.sha;
+    } catch (error: any) {
+        // If we get a 404, it means the branch doesn't exist because the repo is empty.
+        // We can safely ignore this error and proceed to create the first commit.
+        if (error.status !== 404) {
+            throw error; // Re-throw any other unexpected errors.
+        }
+        console.log(`Repo "${repo}" is empty. Creating initial commit.`);
+    }
+
+    // If a commit exists, we need its tree to build upon. Otherwise, we start fresh.
+    const base_tree = latestCommitSha
+        ? (await octokit.git.getCommit({ owner, repo, commit_sha: latestCommitSha })).data.tree.sha
+        : undefined;
 
     const tree = await octokit.git.createTree({
-        owner: login,
+        owner,
         repo,
-        base_tree: latestCommitSha,
+        base_tree,
         tree: files.map(({ path, content }) => ({
             path,
-            mode: '100644', // file
+            mode: '100644', // file blob
             type: 'blob',
             content,
         })),
     });
 
     const { data: newCommit } = await octokit.git.createCommit({
-        owner: login,
+        owner,
         repo,
         message: commitMessage,
         tree: tree.data.sha,
-        parents: [latestCommitSha],
+        // If there's a latestCommitSha, use it as the parent. Otherwise, this is the root commit.
+        parents: latestCommitSha ? [latestCommitSha] : [],
     });
 
-    await octokit.git.updateRef({
-        owner: login,
-        repo,
-        ref: 'heads/main',
-        sha: newCommit.sha,
-    });
+    // If the main branch already exists, update it. If not, create it.
+    if (latestCommitSha) {
+        await octokit.git.updateRef({
+            owner,
+            repo,
+            ref: 'heads/main',
+            sha: newCommit.sha,
+        });
+    } else {
+        await octokit.git.createRef({
+            owner,
+            repo,
+            ref: 'refs/heads/main',
+            sha: newCommit.sha,
+        });
+    }
 
-    return `https://github.com/${login}/${repo}/tree/${newCommit.sha}`;
+    return `https://github.com/${owner}/${repo}/tree/${newCommit.sha}`;
 };
-
 
 /**
  * Fetches the .diff content of a GitHub Pull Request.

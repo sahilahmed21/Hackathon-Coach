@@ -1,6 +1,14 @@
 import { Agent } from "@mastra/core/agent";
 import { githubReporterTool, goodFirstIssuesTool } from "../tools/analysis/gitstat-tool"; // Ensure this path is correct
 import { model } from "../config"; // Assuming your model config is here
+import { Memory } from "@mastra/memory";
+import { LibSQLStore } from "@mastra/libsql";
+
+const GitStatAgentMemory = new Memory({
+    storage: new LibSQLStore({
+        url: "file:./memory.db", // This will create the DB file in the root
+    }),
+});
 
 const name = "GitHub Project Insights Agent"; // Renamed for better fit
 const instructions = `
@@ -35,4 +43,7 @@ export const gitStatagent = new Agent({
     instructions,
     model,
     tools: { githubReporterTool, goodFirstIssuesTool },
+    memory: GitStatAgentMemory
 });
+
+export { GitStatAgentMemory }

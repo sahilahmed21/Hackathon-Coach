@@ -1,6 +1,14 @@
 import { Agent } from "@mastra/core/agent";
 import { model } from "../config";
 import { scaffoldDeployTool } from "../tools/deployement/scaffold-deploy-tool";
+import { Memory } from "@mastra/memory";
+import { LibSQLStore } from "@mastra/libsql";
+
+const DeploymentGuruAgentMemory = new Memory({
+    storage: new LibSQLStore({
+        url: "file:./memory.db", // This will create the DB file in the root
+    }),
+});
 
 export const DeploymentGuruAgent = new Agent({
     name: "DeploymentGuruAgent",
@@ -13,5 +21,8 @@ You are a DevOps expert specializing in CI/CD and deployment automation. Your jo
 `,
     model,
     tools: { scaffoldDeployTool },
+    memory: DeploymentGuruAgentMemory
 });
+
+export { DeploymentGuruAgentMemory }
 

@@ -1,7 +1,15 @@
 import { Agent } from "@mastra/core/agent";
 import { model } from "../config";
-import { ideationTool } from "../tools/ideation-tool";
-import { repositoryTool } from "../tools/github/github-tool"; // Note: The tool has been updated and moved
+import { ideationTool } from "../tools/utility/ideation-tool";
+import { repositoryTool } from "../tools/github/repository-tool"; // Note: The tool has been updated and moved
+import { Memory } from "@mastra/memory";
+import { LibSQLStore } from "@mastra/libsql";
+
+const ProjectCoachAgentMemory = new Memory({
+    storage: new LibSQLStore({
+        url: "file:./memory.db", // This will create the DB file in the root
+    }),
+});
 
 export const ProjectCoachAgent = new Agent({
     name: "ProjectCoachAgent",
@@ -46,4 +54,6 @@ Your operational process is linear and precise. Follow these steps without devia
         ideationTool,
         repositoryTool
     },
+    memory: ProjectCoachAgentMemory
 });
+export { ProjectCoachAgentMemory }
