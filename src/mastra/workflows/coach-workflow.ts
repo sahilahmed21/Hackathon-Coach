@@ -16,6 +16,12 @@ const askCLI = (question: string): Promise<string> => {
     });
 };
 
+// Ensure GITHUB_USERNAME is defined
+const GITHUB_USERNAME = process.env.GITHUB_USERNAME;
+if (!GITHUB_USERNAME) {
+    throw new Error("GITHUB_USERNAME environment variable is not set.");
+}
+
 // --- STEP 1: Ideate, Plan, and Scaffold the Repo ---
 const initialScaffoldStep = createStep({
     id: "initial-scaffold",
@@ -43,16 +49,16 @@ const initialScaffoldStep = createStep({
             }
         );
 
+        // Extract repo name from the URL, but use GITHUB_USERNAME for owner
         const urlParts = new URL(result.object.url).pathname.split('/').filter(Boolean);
-        const owner = urlParts[0];
-        const repo = urlParts[1];
+        const repo = urlParts[1]; // Repo name is second part of the path
         const framework = "nextjs";
 
         console.log(`✅ Repo created: ${result.object.url}`);
 
         return {
             githubUrl: result.object.url,
-            owner,
+            owner: GITHUB_USERNAME, // Use environment variable
             repo,
             framework,
             description: result.object.description,
@@ -70,7 +76,6 @@ const userChoiceStep = createStep({
         framework: z.string(),
         description: z.string(),
     }),
-    // This outputSchema must exactly match what the 'execute' function returns.
     outputSchema: z.object({
         choice: z.enum(["security", "deployment"]),
         projectData: z.object({
@@ -87,13 +92,10 @@ const userChoiceStep = createStep({
             throw new Error("Invalid choice. Please run the workflow again.");
         }
 
-        // The return object now perfectly matches the outputSchema
         return {
-            // FIX 1: We explicitly cast the result to the enum type so TypeScript is satisfied.
             choice: (choice === '1' ? 'security' : 'deployment') as "security" | "deployment",
-            // FIX 2: We build a new object containing only the fields required by the next step.
             projectData: {
-                owner: inputData.owner,
+                owner: inputData.owner, // This will be GITHUB_USERNAME from previous step
                 repo: inputData.repo,
                 framework: inputData.framework,
             },
@@ -139,8 +141,7 @@ const executeChoiceStep = createStep({
     },
 });
 
-
-// --- Assemble the Corrected Workflow ---
+// --- Assemble the Workflow ---
 export const hackathonCoachWorkflow = createWorkflow({
     id: "hackathon-coach-workflow",
     description: "A full, interactive workflow from ideation to a ready-to-code, analyzed, and deployed project.",

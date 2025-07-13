@@ -1,337 +1,219 @@
-# Nosana Builders Challenge: Agent-101
+Hackathon Coach: Your AI-Powered Co-Pilot for Instant Project Scaffolding
 
-![Agent-101](./assets/NosanaBuildersChallengeAgents.jpg)
+  
+  
+  
 
-## Topic
 
-Nosana Builders Challenge, 2nd edition
-Agent-101: Build your first agent
+Executive Summary
+Hackathon Coach is a sophisticated, multi-agent AI system designed to eliminate the friction of starting a new software project. It acts as an intelligent co-pilot, guiding developers from a vague project idea to a fully scaffolded, secure, and deployment-ready GitHub repository in minutes. Built on the Mastra TypeScript framework, it leverages a team of eight specialized AI agents, each an expert in a specific domain of the development lifecycle, orchestrated by an interactive, stateful workflow.
+The system stands out with its modular architecture (Agents -> Tools -> Services), a dual-LLM fallback mechanism (Google Gemini as primary, with Ollama as backup), and stateful memory for both short-term conversational context and long-term project persistence via a local JSON database. This makes Hackathon Coach a production-grade AI assistant, empowering developers to build faster and more efficiently.
+🏆 Submission for the Nosana Agent Challenge: Agent-101📹 Video Demo: [Insert link to 1-3 minute video demo here]🐳 Docker Hub Container: https://hub.docker.com/r/sahilahmed21/hackathon-coach🚀 Nosana Deployment: [Insert link to Nosana job dashboard or job ID here]
+🎯 The Problem It Solves
+Starting a new software project often involves repetitive, time-consuming tasks: brainstorming ideas, creating a project plan, setting up a GitHub repository, writing boilerplate code, and configuring CI/CD pipelines. These steps can take hours, draining creative momentum. Hackathon Coach automates this entire pipeline, enabling developers to focus on building innovative features.
+✨ Key Features
 
-## Description
+🚀 Full-Cycle Project Generation: Transform a single topic (e.g., "AI recipe app") into a complete, initialized GitHub repository in one command.
+🧠 Specialized AI Agents: A team of eight expert agents handles ideation, security, deployment, code review, and more.
+⚙️ Interactive & Stateful Workflow: An intelligent workflow pauses for user input, creating a dynamic, guided experience.
+💾 Long-Term Project Memory: The ProjectTrackerAgent saves project details to a local JSON database for persistent tracking and management.
+🛡️ Dual-LLM Fallback System: Uses Google Gemini as the primary LLM, with automatic fallback to a self-hosted Ollama instance for high availability.
+🔧 Professional Architecture: Built on a scalable Agents -> Tools -> Services pattern for easy maintenance and extension.
 
-The main goal of this `Nosana Builders Challenge` to teach participants to build and deploy agents. This first step will be in running a basic AI agent and giving it some basic functionality. Participants will add a tool, for the tool calling capabilities of the agent. These are basically some TypeScript functions, that will, for example, retrieve some data from a weather API, post a tweet via an API call, etc.
+🛠️ Architecture Overview
+Hackathon Coach is built with professional software engineering principles, emphasizing modularity, scalability, and maintainability.
+Technology Stack
 
-## [Mastra](https://github.com/mastra-ai/mastra)
+Core Framework: Mastra, an open-source TypeScript framework for AI applications.
+Language: TypeScript, ensuring type safety and robust code structure.
+Primary LLM: Google Gemini (gemini-1.5-flash-latest), used for reasoning, instruction-following, and code generation.
+Fallback LLM: Ollama-hosted Qwen (qwen2.5:7b), ensuring high availability if Gemini fails (e.g., due to rate limits or outages).
+GitHub Integration: Octokit/rest for repository creation, file pushes, and PR analysis.
+Stateful Memory:
+Conversational: Managed by Mastra’s Memory class, with each agent maintaining isolated context.
+Persistent: Implemented via projectDBService, using a local projects.json file as a database.
 
-For this challenge we will be using Mastra to build our tool.
 
-> Mastra is an opinionated TypeScript framework that helps you build AI applications and features quickly. It gives you the set of primitives you need: workflows, agents, RAG, integrations, and evals. You can run Mastra on your local machine, or deploy to a serverless cloud.
 
-### Required Reading
+File Structure
+src/mastra/
+├── agents/                   # Agent personas and goals
+│   ├── ProjectCoachAgent.ts
+│   ├── GuardianAgent.ts
+│   ├── DeploymentGuruAgent.ts
+│   ├── ReviewAgent.ts
+│   ├── CiAgent.ts
+│   ├── GitStatAgent.ts
+│   ├── HelpAgent.ts
+│   ├── ProjectTrackerAgent.ts
+├── services/                 # Reusable business logic
+│   ├── githubService.ts
+│   ├── projectDBService.ts
+│   └── ...
+├── tools/                    # Bridges between agents and services
+│   ├── github/
+│   ├── analysis/
+│   └── ...
+├── workflows/                # Multi-agent orchestration
+│   └── coach-workflow.ts
+├── config.ts                 # Dual-LLM configuration
+└── index.ts                  # Mastra component registration
 
-We recommend reading the following sections to get started with how to create an Agent and how to implement Tool Calling.
+The Agents -> Tools -> Services Pattern
 
-- <https://mastra.ai/en/docs/agents/overview>
-- [Mastra Guide: Build an AI stock agent](https://mastra.ai/en/guides/guide/stock-agent)
+Agents: The "brain," defining personas and high-level goals (e.g., ProjectCoachAgent for ideation).
+Tools: The "hands," exposing capabilities like creating repositories or scanning dependencies.
+Services: The "engine room," handling complex logic like GitHub API calls and database operations.
 
-## Get Started
+Agent Roster
 
-To get started run the following command to start developing:
-We recommend using [pnpm](https://pnpm.io/installation), but you can try npm, or bun if you prefer.
+ProjectCoachAgent: Brainstorms ideas, creates development plans, and scaffolds GitHub repositories.
+GuardianAgent: Scans dependencies for vulnerabilities and outdated packages.
+DeploymentGuruAgent: Adds deployment files (e.g., Dockerfile, .nosana-ci.yml, vercel.json).
+ReviewAgent: Conducts qualitative code reviews on GitHub Pull Requests.
+CiAgent: Monitors GitHub Actions status for commits.
+GitHub Project Insights Agent (GitStatAgent): Generates repository statistics and lists "good first issues."
+HelpAgent: Provides resources for coding problems and errors.
+ProjectTrackerAgent: Saves and lists project details in a local projects.json database.
 
-```sh
+Main Workflow: hackathonCoachWorkflow
+The workflow orchestrates agents in four steps:
+
+Ideate & Initialize: ProjectCoachAgent refines the user’s topic and creates a GitHub repository with initial files (README.md, package.json).
+Interactive Choice: Pauses to prompt the user to choose between security scanning or deployment setup.
+Intelligent Dispatch: Executes the chosen task using GuardianAgent or DeploymentGuruAgent.
+Persist to Memory: ProjectTrackerAgent saves project details to the database.
+
+🚀 Getting Started
+Follow these steps to run Hackathon Coach locally.
+Prerequisites
+
+Node.js: v20.x or later
+pnpm: Package manager
+Git: Version control
+GitHub Account: With a Personal Access Token (repo permissions)
+Docker: For containerized deployment
+
+1. Clone the Repository
+git clone https://github.com/sahilahmed21/hackathon-coach
+cd hackathon-coach
+
+2. Install Dependencies
 pnpm install
+
+3. Configure Your Environment
+Create a .env file by copying .env.example and filling in your credentials:
+# .env
+
+# --- Google Gemini Configuration ---
+GOOGLE_GENERATIVE_AI_API_KEY=AIzaSy...
+GEMINI_MODEL_NAME=gemini-1.5-flash-latest
+
+# --- Ollama Fallback Configuration ---
+API_BASE_URL=http://127.0.0.1:11434
+MODEL_NAME_AT_ENDPOINT=qwen2.5:7b
+
+# --- Fallback Configuration ---
+PRIMARY_PROVIDER=google
+
+# --- GitHub Configuration ---
+GITHUB_TOKEN=ghp_...
+GITHUB_USERNAME=sahilahmed21
+
+4. Run the Development Server
 pnpm run dev
-```
 
-## Assignment
+This starts the Mastra server. Access the Playground at http://localhost:4111 to test individual agents.
+💡 How to Use
+Testing Individual Agents (via Playground)
+Navigate to http://localhost:4111 to interact with agents.
+Example 1: HelpAgent
 
-### Challenge Overview
+Agent: HelpAgent
+Prompt: How do I fix a CORS error in my Express.js app?
+Expected Output:I found resources to help with your CORS error:
+- **MDN Web Docs: Cross-Origin Resource Sharing (CORS)**: Official documentation. You likely need a middleware library.
+- **Stack Overflow: Express CORS Middleware**: Common solution is to use the `cors` npm package.
 
-Welcome to the Nosana AI Agent Hackathon! Your mission is to build and deploy an AI agent on Nosana.
-While we provide a weather agent as an example, your creativity is the limit. Build agents that:
 
-**Beginner Level:**
 
-- **Simple Calculator**: Perform basic math operations with explanations
-- **Todo List Manager**: Help users track their daily tasks
+Example 2: ProjectTrackerAgent
 
-**Intermediate Level:**
+Agent: ProjectTrackerAgent
+Prompt: List my saved projects
+Expected Output (after running the workflow):Here are your saved projects:
+Name                  Framework  GitHub URL
+ai-recipe-advisor     nextjs     https://github.com/sahilahmed21/ai-recipe-advisor
 
-- **News Summarizer**: Fetch and summarize latest news articles
-- **Crypto Price Checker**: Monitor cryptocurrency prices and changes
-- **GitHub Stats Reporter**: Fetch repository statistics and insights
 
-**Advanced Level:**
 
-- **Blockchain Monitor**: Track and alert on blockchain activities
-- **Trading Strategy Bot**: Automate simple trading strategies
-- **Deploy Manager**: Deploy and manage applications on Nosana
+Testing the Main Workflow (via CLI)
+Run the end-to-end workflow to scaffold a project:
+pnpm mastra workflow run hackathon-coach-workflow --input='{ "topic": "A personal finance dashboard" }'
 
-Or any other innovative AI agent idea at your skill level!
+Expected Interaction
+🤖 CoachAgent: Generating idea and scaffolding project for topic: "A personal finance dashboard"...
+✅ Repo created: https://github.com/sahilahmed21/personal-finance-dashboard
+🌱 Initializing repository with a README.md file...
+✅ Repository initialized successfully.
 
-### Getting Started
+🤔 What would you like to do next?
+1. Scan for security issues
+2. Set up deployment files
+Enter choice (1 or 2): 2
 
-1. **Fork the [Nosana Agent Challenge](https://github.com/nosana-ai/agent-challenge)** to your GitHub account
-2. **Clone your fork** locally
-3. **Install dependencies** with `pnpm install`
-4. **Run the development server** with `pnpm run dev`
-5. **Build your agent** using the Mastra framework
+🚀 DeploymentGuru: Scaffolding deployment files...
+✅ Task "deployment" completed.
+💾 ProjectTrackerAgent: Saving project details to database...
+🎉 All done! Your project "personal-finance-dashboard" has been fully scaffolded and saved.
 
-### How to build your Agent
+🐳 Docker & Deployment
+Build the Container
+docker build -t sahilahmed21/hackathon-coach:latest .
 
-Here we will describe the steps needed to build an agent.
+Run the Container Locally
+docker run -p 8080:8080 --env-file .env sahilahmed21/hackathon-coach:latest
 
-#### Folder Structure
-
-Provided in this repo, there is the `Weather Agent`.
-This is a fully working agent that allows a user to chat with an LLM, and fetches real time weather data for the provided location.
-
-There are two main folders we need to pay attention to:
-
-- [src/mastra/agents/weather-agent/](./src/mastra/agents/weather-agent/)
-- [src/mastra/agents/your-agents/](./src/mastra/agents/your-agent/)
-
-In `src/mastra/agents/weather-agent/` you will find a complete example of a working agent. Complete with Agent definition, API calls, interface definition, basically everything needed to get a full fledged working agent up and running.
-In `src/mastra/agents/your-agents/` you will find a bare bones example of the needed components, and imports to get started building your agent, we recommend you rename this folder, and it's files to get started.
-
-Rename these files to represent the purpose of your agent and tools. You can use the [Weather Agent Example](#example:_weather_agent) as a guide until you are done with it, and then you can delete these files before submitting your final submission.
-
-As a bonus, for the ambitious ones, we have also provided the [src/mastra/agents/weather-agent/weather-workflow.ts](./src/mastra/agents/weather-agent/weather-workflow.ts) file as an example. This file contains an example of how you can chain agents and tools to create a workflow, in this case, the user provides their location, and the agent retrieves the weather for the specified location, and suggests an itinerary.
-
-### LLM-Endpoint
-
-Agents depend on an LLM to be able to do their work.
-
-#### Nosana Endpoint
-
-You can use the following endpoint and model for testing, if you wish:
-
-```
-MODEL_NAME_AT_ENDPOINT=qwen2.5:1.5b
-API_BASE_URL= https://dashboard.nosana.com/jobs/GPVMUckqjKR6FwqnxDeDRqbn34BH7gAa5xWnWuNH1drf
-```
-
-#### Running Your Own LLM with Ollama
-
-The default configuration uses a local [Ollama](https://ollama.com) LLM.
-For local development or if you prefer to use your own LLM, you can use [Ollama](https://ollama.ai) to serve the lightweight `qwen2.5:1.5b` mode.
-
-**Installation & Setup:**
-
-1. **[ Install Ollama ](https://ollama.com/download)**:
-
-2. **Start Ollama service**:
-
-```bash
-ollama serve
-```
-
-3. **Pull and run the `qwen2.5:1.5b` model**:
-
-```bash
-ollama pull qwen2.5:1.5b
-ollama run qwen2.5:1.5b
-```
-
-4. **Update your `.env` file**
-
-There are two predefined environments defined in the `.env` file. One for local development and another, with a larger model, `qwen2.5:32b`, for more complex use cases.
-
-**Why `qwen2.5:1.5b`?**
-
-- Lightweight (only ~1GB)
-- Fast inference on CPU
-- Supports tool calling
-- Great for development and testing
-
-Do note `qwen2.5:1.5b` is not suited for complex tasks.
-
-The Ollama server will run on `http://localhost:11434` by default and is compatible with the OpenAI API format that Mastra expects.
-
-### Testing your Agent
-
-You can read the [Mastra Documentation: Playground](https://mastra.ai/en/docs/local-dev/mastra-dev) to learn more on how to test your agent locally.
-Before deploying your agent to Nosana, it's crucial to thoroughly test it locally to ensure everything works as expected. Follow these steps to validate your agent:
-
-**Local Testing:**
-
-1. **Start the development server** with `pnpm run dev` and navigate to `http://localhost:8080` in your browser
-2. **Test your agent's conversation flow** by interacting with it through the chat interface
-3. **Verify tool functionality** by triggering scenarios that call your custom tools
-4. **Check error handling** by providing invalid inputs or testing edge cases
-5. **Monitor the console logs** to ensure there are no runtime errors or warnings
-
-**Docker Testing:**
-After building your Docker container, test it locally before pushing to the registry:
-
-```bash
-# Build your container
-docker build -t yourusername/agent-challenge:latest .
-
-# Run it locally with environment variables
-docker run -p 8080:8080 --env-file .env yourusername/agent-challenge:latest
-
-# Test the containerized agent at http://localhost:8080
-```
-
-Ensure your agent responds correctly and all tools function properly within the containerized environment. This step is critical as the Nosana deployment will use this exact container.
-
-### Submission Requirements
-
-#### 1. Code Development
-
-- Fork this repository and develop your AI agent
-- Your agent must include at least one custom tool (function)
-- Code must be well-documented and include clear setup instructions
-- Include environment variable examples in a `.env.example` file
-
-#### 2. Docker Container
-
-- Create a `Dockerfile` for your agent
-- Build and push your container to Docker Hub or GitHub Container Registry
-- Container must be publicly accessible
-- Include the container URL in your submission
-
-##### Build, Run, Publish
-
-Note: You'll need an account on [Dockerhub](https://hub.docker.com/)
-
-```sh
-
-# Build and tag
-docker build -t yourusername/agent-challenge:latest .
-
-# Run the container locally
-docker run -p 8080:8080 yourusername/agent-challenge:latest
-
-# Login
+Push to Docker Hub
 docker login
+docker push sahilahmed21/hackathon-coach:latest
 
-# Push
-docker push yourusername/agent-challenge:latest
-```
+Nosana Deployment
+The project is configured for deployment on the Nosana network via a .nosana-ci.yml file generated by DeploymentGuruAgent. Check the Nosana job dashboard for deployment status.
+📚 Technical Details
+Dual-LLM Fallback System
 
-#### 3. Nosana Deployment
+Primary: Google Gemini (gemini-1.5-flash-latest) for robust performance.
+Fallback: Ollama (qwen2.5:7b) for high availability during API issues.
+Configured in src/mastra/config.ts, with PRIMARY_PROVIDER=google by default.
 
-- Deploy your Docker container on Nosana
-- Your agent must successfully run on the Nosana network
-- Include the Nosana job ID or deployment link
+Persistent Memory
 
-##### Nosana Job Definition
+Conversational: Each agent uses Mastra’s Memory class for context.
+Persistent: ProjectTrackerAgent saves project details (name, URL, framework, description) to projects.json.
 
-We have included a Nosana job definition at <./nos_job_def/nosana_mastra.json>, that you can use to publish your agent to the Nosana network.
+GitHub Integration
 
-**A. Deploying using [@nosana/cli](https://github.com/nosana-ci/nosana-cli/)**
+Uses Octokit/rest for creating repositories, committing files, and analyzing PRs.
+Configured via GITHUB_TOKEN and GITHUB_USERNAME in .env.
 
-- Edit the file and add in your published docker image to the `image` property. `"image": "docker.io/yourusername/agent-challenge:latest"`
-- Download and install the [@nosana/cli](https://github.com/nosana-ci/nosana-cli/)
-- Load your wallet with some funds
-  - Retrieve your address with: `nosana address`
-  - Go to our [Discord](https://nosana.com/discord) and ask for some NOS and SOL to publish your job.
-- Run: `nosana job post --file nosana_mastra.json --market nvidia-3060 --timeout 30`
-- Go to the [Nosana Dashboard](https://dashboard.nosana.com/deploy) to see your job
+🛡️ Security & Reliability
 
-**B. Deploying using the [Nosana Dashboard](https://dashboard.nosana.com/deploy)**
+GuardianAgent scans dependencies for vulnerabilities.
+Dual-LLM ensures uninterrupted operation.
+TypeScript enforces type safety, reducing runtime errors.
 
-- Make sure you have https://phantom.com/, installed for your browser.
-- Go to our [Discord](https://nosana.com/discord) and ask for some NOS and SOL to publish your job.
-- Click the `Expand` button, on the [Nosana Dashboard](https://dashboard.nosana.com/deploy)
-- Copy and Paste your edited Nosana Job Definition file into the Textarea
-- Choose an appropriate GPU for the AI model that you are using
-- Click `Deploy`
+🚀 Future Enhancements
 
-#### 4. Video Demo
+Add support for additional frameworks (e.g., React, Django).
+Integrate more CI/CD platforms (e.g., CircleCI, Jenkins).
+Enhance GitStatAgent with real-time analytics visualizations.
+Expand HelpAgent to include Stack Overflow API integration.
 
-- Record a 1-3 minute video demonstrating:
-  - Your agent running on Nosana
-  - Key features and functionality
-  - Real-world use case demonstration
-- Upload to YouTube, Loom, or similar platform
+📝 License
+MIT License. See LICENSE for details.
+🙌 Acknowledgments
 
-#### 5. Documentation
-
-- Update this README with:
-  - Agent description and purpose
-  - Setup instructions
-  - Environment variables required
-  - Docker build and run commands
-  - Example usage
-
-### Submission Process
-
-1. **Complete all requirements** listed above
-2. **Commit all of your changes to the `main` branch of your forked repository**
-   - All your code changes
-   - Updated README
-   - Link to your Docker container
-   - Link to your video demo
-   - Nosana deployment proof
-3. **Social Media Post**: Share your submission on X (Twitter)
-   - Tag @nosana_ai
-   - Include a brief description of your agent
-   - Add hashtag #NosanaAgentChallenge
-4. **Finalize your submission on the <https://earn.superteam.fun/agent-challenge> page**
-
-- Remember to add your forked GitHub repository link
-- Remember to add a link to your X post.
-
-### Judging Criteria
-
-Submissions will be evaluated based on:
-
-1. **Innovation** (25%)
-
-   - Originality of the agent concept
-   - Creative use of AI capabilities
-
-2. **Technical Implementation** (25%)
-
-   - Code quality and organization
-   - Proper use of the Mastra framework
-   - Efficient tool implementation
-
-3. **Nosana Integration** (25%)
-
-   - Successful deployment on Nosana
-   - Resource efficiency
-   - Stability and performance
-
-4. **Real-World Impact** (25%)
-   - Practical use cases
-   - Potential for adoption
-   - Value proposition
-
-### Prizes
-
-We’re awarding the **top 10 submissions**:
-
-- 🥇 1st: $1,000 USDC
-- 🥈 2nd: $750 USDC
-- 🥉 3rd: $450 USDC
-- 🏅 4th: $200 USDC
-- 🔟 5th–10th: $100 USDC
-
-All prizes are paid out directly to participants on [SuperTeam](https://superteam.fun)
-
-### Resources
-
-- [Nosana Documentation](https://docs.nosana.io)
-- [Mastra Documentation](https://mastra.ai/docs)
-- [Mastra Guide: Build an AI stock agent](https://mastra.ai/en/guides/guide/stock-agent)
-- [Nosana CLI](https://github.com/nosana-ci/nosana-cli)
-- [Docker Documentation](https://docs.docker.com)
-
-### Support
-
-- Join [Nosana Discord](https://nosana.com/discord) for technical support where we have dedicated [Builders Challenge Dev chat](https://discord.com/channels/236263424676331521/1354391113028337664) channel.
-- Follow [@nosana_ai](https://x.com/nosana_ai) for updates.
-
-### Important Notes
-
-- Ensure your agent doesn't expose sensitive data
-- Test thoroughly before submission
-- Keep your Docker images lightweight
-- Document all dependencies clearly
-- Make your code reproducible
-- You can vibe code it if you want 😉
-- **Only one submission per participant**
-- **Submissions that do not compile, and do not meet the specified requirements, will not be considered**
-- **Deadline is: 9 July 2025, 12.01 PM**
-- **Announcement will be announced about one week later, stay tuned for our socials for exact date**
-- **Finalize your submission at [SuperTeam](https://earn.superteam.fun/agent-challenge)**
-
-### Don’t Miss Nosana Builder Challenge Updates
-
-Good luck, builders! We can't wait to see the innovative AI agents you create for the Nosana ecosystem.
-**Happy Building!**
+Nosana Agent Challenge for inspiring this project.
+Mastra Framework for providing a robust AI development platform.
+Google Gemini and Ollama for powering the AI capabilities.

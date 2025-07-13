@@ -7,7 +7,10 @@ const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
  * Creates a new GitHub repository and pushes an initial README file.
  */
 export const createRepo = async (repoName: string, readmeContent: string, isPrivate: boolean = false) => {
-    const owner = (await octokit.users.getAuthenticated()).data.login;
+    const owner = process.env.GITHUB_USERNAME;
+    if (!owner) {
+        throw new Error("GITHUB_USERNAME environment variable is not set.");
+    }
 
     const { data: repo } = await octokit.repos.createForAuthenticatedUser({
         name: repoName,
